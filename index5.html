@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="空间叙事理论脉络 — 从空间形式到空间转向的可交互理论地图">
+<title>空间叙事理论脉络</title>
+<style>
+  :root{
+    --bg:#f1ece1;
+    --paper:#faf7f0;
+    --paper-hi:#fffdf8;
+    --ink:#221d16;
+    --ink-soft:#5a5044;
+    --line:#d6cdbb;
+    --accent:#9c3a2e;
+    --accent-soft:#bb6240;
+    --gold:#b08838;
+    --blue:#3a5a6e;
+    --green:#52684e;
+    --shadow:rgba(45,40,30,.13);
+    --hl:rgba(176,136,56,.36);
+    --glow:rgba(176,136,56,.05);
+    --veil:rgba(90,70,40,.024);
+  }
+  /* 暗黑主题 —— Tesseract:深暖咖啡基底 + 琥珀缝隙透光 + 冷青点缀 */
+  html[data-theme="dark"]{
+    --bg:#100c08;
+    --paper:#1c150e;
+    --paper-hi:#251a10;
+    --ink:#f0e6d2;
+    --ink-soft:#b09a78;
+    --line:#3a2c1c;
+    --accent:#e0855a;
+    --accent-soft:#c47a4a;
+    --gold:#e0b454;
+    --blue:#6fa4bd;
+    --green:#8fac7e;
+    --shadow:rgba(0,0,0,.65);
+    --hl:rgba(224,180,84,.30);
+    --glow:rgba(224,180,84,.08);
+    --veil:rgba(224,200,150,.022);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:"Songti SC","SimSun","Noto Serif SC",Georgia,serif;
+    background:var(--bg);
+    color:var(--ink);
+    line-height:1.7;
+    -webkit-font-smoothing:antialiased;
+    transition:background .4s,color .4s;
+  }
+  /* 纸张/纵深质感:顶部缝隙透光 + 角落柔光 */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:
+      radial-gradient(120% 62% at 50% -12%, var(--glow), transparent 60%),
+      radial-gradient(circle at 18% 28%, var(--glow), transparent 42%),
+      radial-gradient(circle at 82% 72%, var(--glow), transparent 42%);
+  }
+  /* 极淡纵向线条:呼应 tesseract 的纵向结构,深色可见、浅色近乎无 */
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background-image:repeating-linear-gradient(90deg,transparent 0 46px,var(--veil) 46px 47px);
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px;position:relative;z-index:1;}
+
+  /* 顶部标题 */
+  header{padding:48px 0 24px;border-bottom:2px solid var(--ink);margin-bottom:0;position:relative;}
+  header::before{content:"";position:absolute;left:-40px;right:-40px;top:-48px;height:180px;
+    pointer-events:none;z-index:-1;
+    background:radial-gradient(70% 100% at 50% 0%,var(--glow),transparent 72%);}
+  .eyebrow{font-size:13px;letter-spacing:.4em;color:var(--accent);text-transform:uppercase;margin-bottom:14px;font-family:Georgia,serif;}
+  h1{font-size:clamp(34px,6vw,58px);font-weight:700;letter-spacing:.04em;line-height:1.1;}
+  h1 .sub{display:block;font-size:clamp(15px,2vw,20px);color:var(--ink-soft);letter-spacing:.3em;font-weight:400;margin-top:12px;}
+  .intro{margin-top:20px;max-width:680px;color:var(--ink-soft);font-size:16px;}
+
+  /* 主题切换按钮 */
+  .theme-toggle{position:absolute;top:48px;right:0;background:var(--paper);border:1px solid var(--line);
+    border-radius:50%;width:42px;height:42px;cursor:pointer;font-size:18px;display:flex;
+    align-items:center;justify-content:center;transition:all .25s;color:var(--ink-soft);}
+  .theme-toggle:hover{border-color:var(--accent);color:var(--accent);transform:rotate(15deg);}
+  @media(max-width:680px){.theme-toggle{top:24px;width:38px;height:38px;}}
+
+  /* 导航标签 */
+  nav.tabs{position:sticky;top:0;z-index:20;background:var(--bg);
+    display:flex;gap:0;border-bottom:1px solid var(--line);margin-top:28px;
+    box-shadow:0 4px 12px -8px var(--shadow);}
+  nav.tabs button{
+    flex:1;background:none;border:none;cursor:pointer;padding:18px 10px;
+    font-family:inherit;font-size:16px;color:var(--ink-soft);letter-spacing:.15em;
+    border-bottom:3px solid transparent;transition:all .25s;position:relative;
+  }
+  nav.tabs button .en{display:block;font-size:11px;letter-spacing:.2em;font-family:Georgia,serif;opacity:.6;margin-top:3px;}
+  nav.tabs button:hover{color:var(--ink);background:var(--hl);}
+  nav.tabs button.active{color:var(--accent);border-bottom-color:var(--accent);}
+  nav.tabs button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
+
+  .view{display:none;padding:40px 0 100px;animation:fade .5s ease;}
+  .view.active{display:block;}
+  @keyframes fade{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+
+  /* ============ 时间线 ============ */
+  /* 时期筛选条 */
+  .era-filter{display:flex;gap:10px;margin-bottom:26px;flex-wrap:wrap;}
+  .era-filter button{display:flex;flex-direction:column;gap:2px;align-items:flex-start;
+    padding:10px 16px;border:1px solid var(--line);border-left-width:4px;background:var(--paper);
+    cursor:pointer;font-family:inherit;border-radius:3px;transition:all .2s;text-align:left;}
+  .era-filter button .ef-label{font-size:14px;font-weight:700;color:var(--ink);letter-spacing:.04em;}
+  .era-filter button .ef-years{font-size:11px;color:var(--ink-soft);font-family:Georgia,serif;letter-spacing:.05em;}
+  .era-filter button:hover{transform:translateY(-2px);box-shadow:0 6px 16px -10px var(--shadow);}
+  .era-filter button.active{background:var(--ef-color);border-color:var(--ef-color);}
+  .era-filter button.active .ef-label,.era-filter button.active .ef-years{color:#fff;}
+  .era-filter button.dimmed{opacity:.45;}
+
+  /* 年份分布迷你直方图(总览,变窄) */
+  .tl-histo{display:flex;align-items:flex-end;gap:3px;height:38px;margin:0 0 34px 2px;
+    border-left:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .tl-histo .bar{flex:1;background:linear-gradient(var(--accent),var(--gold));opacity:.5;
+    border-radius:2px 2px 0 0;min-height:3px;transition:opacity .2s,background .2s;position:relative;}
+  .tl-histo .bar:hover{opacity:1;}
+  .tl-histo .bar span{position:absolute;top:-16px;left:50%;transform:translateX(-50%);
+    font-size:9px;color:var(--ink-soft);font-family:Georgia,serif;white-space:nowrap;opacity:0;transition:opacity .2s;}
+  .tl-histo .bar:hover span{opacity:1;}
+
+  /* 双侧交替时间线:中轴居中,条目左右交替 */
+  .timeline{position:relative;padding:10px 0;}
+  /* 中轴线:由 JS 注入分段色带 */
+  .timeline::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:3px;
+    transform:translateX(-50%);background:var(--line);border-radius:2px;}
+  .tl-axis{position:absolute;left:50%;width:3px;transform:translateX(-50%);
+    border-radius:2px;z-index:1;transition:opacity .25s,box-shadow .25s;}
+
+  /* 时期标题(横跨中轴) */
+  .tl-era{position:relative;text-align:center;margin:34px 0 18px;z-index:4;transition:opacity .25s;}
+  .tl-era-inner{display:inline-flex;flex-direction:column;gap:2px;align-items:center;
+    background:var(--bg);padding:6px 22px;border:1px solid var(--era-color);border-radius:30px;
+    box-shadow:0 0 0 4px var(--bg);}
+  .tl-era-label{font-size:16px;font-weight:700;color:var(--era-color);letter-spacing:.06em;}
+  .tl-era-en{font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-soft);
+    font-family:Georgia,serif;opacity:.7;}
+
+  /* 单个条目:卡片放在中轴一侧 */
+  .tl-item{position:relative;width:calc(50% - 40px);box-sizing:border-box;margin-bottom:26px;
+    cursor:pointer;z-index:2;transition:opacity .25s,transform .2s;}
+  .tl-item .tl-card{background:var(--paper);border:1px solid var(--line);border-radius:8px;
+    padding:16px 18px;position:relative;transition:box-shadow .2s,border-color .2s,transform .2s;}
+  .tl-item:hover .tl-card{transform:translateY(-3px);box-shadow:0 12px 26px -14px var(--shadow),0 0 26px -8px var(--glow);border-color:var(--era-color);}
+  .tl-item:focus-visible{outline:none;}
+  .tl-item:focus-visible .tl-card{box-shadow:0 0 0 2px var(--era-color);}
+  /* 右侧条目 */
+  .tl-item.right{margin-left:calc(50% + 40px);}
+  /* 左侧条目 */
+  .tl-item.left{margin-right:calc(50% + 40px);text-align:right;}
+  /* 连接中轴的小圆点 */
+  .tl-dot{position:absolute;top:20px;width:15px;height:15px;border-radius:50%;
+    background:var(--bg);border:3px solid var(--era-color);z-index:3;transition:transform .2s,box-shadow .2s;}
+  .tl-item.right .tl-dot{left:-48px;}
+  .tl-item.left .tl-dot{right:-48px;}
+  .tl-item:hover .tl-dot{transform:scale(1.35);box-shadow:0 0 0 4px color-mix(in srgb, var(--era-color) 25%, transparent);}
+  /* 指向中轴的连接线 */
+  .tl-item .tl-arm{position:absolute;top:26px;height:2px;background:var(--era-color);opacity:.4;z-index:1;}
+  .tl-item.right .tl-arm{left:-40px;width:40px;}
+  .tl-item.left .tl-arm{right:-40px;width:40px;}
+
+  .tl-year{font-family:Georgia,serif;font-size:22px;font-weight:700;color:var(--era-color);line-height:1;margin-bottom:6px;}
+  .tl-scholar{font-size:13px;color:var(--ink-soft);letter-spacing:.04em;}
+  .tl-title{font-size:18px;font-weight:700;margin:2px 0 6px;line-height:1.35;}
+  .tl-title .orig{display:block;font-size:12.5px;color:var(--ink-soft);font-weight:400;font-style:italic;font-family:Georgia,serif;margin-top:2px;}
+  .tl-concept{font-size:13.5px;color:var(--ink-soft);
+    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+  .tl-tag{display:inline-block;font-size:11px;padding:2px 9px;border-radius:2px;margin-top:8px;letter-spacing:.06em;}
+  /* 被时期筛选虚化的条目 */
+  .tl-item.faded{opacity:.28;}
+  .tl-item.faded:hover{opacity:.7;}
+  .tl-era.faded{opacity:.3;}
+
+  /* 移动端:退回单侧竖排卡片 */
+  @media(max-width:760px){
+    .timeline::before,.tl-axis{left:8px;transform:none;}
+    .tl-era{text-align:left;margin:26px 0 14px;}
+    .tl-era-inner{box-shadow:none;padding:6px 16px;}
+    .tl-item,.tl-item.right,.tl-item.left{width:auto;margin-left:34px;margin-right:0;text-align:left;}
+    .tl-item.left{text-align:left;}
+    .tl-item.right .tl-dot,.tl-item.left .tl-dot{left:-30px;right:auto;}
+    .tl-item.right .tl-arm,.tl-item.left .tl-arm{left:-22px;right:auto;width:22px;}
+  }
+
+  /* ============ 关系网络(3D) ============ */
+  .net-hint{color:var(--ink-soft);margin-bottom:18px;font-size:15px;}
+  .net-stage{position:relative;width:100%;height:640px;
+    background:radial-gradient(100% 70% at 50% -8%,var(--glow),transparent 55%),
+               radial-gradient(circle at 50% 40%,var(--paper),var(--bg));
+    border:1px solid var(--line);border-radius:6px;overflow:hidden;}
+  @media(max-width:680px){.net-stage{height:520px;}}
+  svg.net{width:100%;height:100%;display:block;cursor:grab;touch-action:none;}
+  svg.net:active{cursor:grabbing;}
+  .node circle{cursor:pointer;}
+  .node text{font-family:"Songti SC","SimSun",serif;pointer-events:none;fill:var(--ink);}
+  .node.dim{opacity:.12;}
+  .edge{stroke:var(--line);fill:none;}
+  .edge.hot{stroke:var(--accent);}
+  .edge.dim{opacity:.06;}
+  /* 坐标轴与刻度 */
+  .axis-line{stroke:var(--ink-soft);stroke-width:1;opacity:.35;}
+  .axis-label{fill:var(--ink-soft);font-family:Georgia,serif;font-size:12px;opacity:.7;}
+  .axis-tick{fill:var(--ink-soft);font-family:Georgia,serif;font-size:10px;opacity:.5;}
+  .grid-line{stroke:var(--line);stroke-width:.6;opacity:.25;}
+  /* 视角切换按钮 */
+  .net-views{position:absolute;left:14px;top:14px;display:flex;gap:6px;z-index:5;flex-wrap:wrap;}
+  .net-views button{padding:7px 13px;border:1px solid var(--line);background:var(--paper);
+    cursor:pointer;font-family:inherit;font-size:12.5px;color:var(--ink-soft);border-radius:4px;
+    transition:all .2s;letter-spacing:.04em;}
+  .net-views button:hover{border-color:var(--accent);color:var(--accent);}
+  .net-views button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  @media(max-width:680px){.net-views button{padding:6px 10px;font-size:11.5px;}}
+  .net-controls{position:absolute;right:14px;bottom:14px;display:flex;flex-direction:column;gap:6px;z-index:5;}
+  .net-controls button{width:36px;height:36px;border:1px solid var(--line);background:var(--paper);
+    cursor:pointer;font-size:18px;color:var(--ink-soft);border-radius:4px;transition:all .2s;
+    display:flex;align-items:center;justify-content:center;}
+  .net-controls button:hover{border-color:var(--accent);color:var(--accent);}
+  .net-loading{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+    justify-content:center;gap:14px;background:var(--paper);color:var(--ink-soft);font-size:14px;z-index:6;}
+  .net-loading .spinner{width:34px;height:34px;border:3px solid var(--line);border-top-color:var(--accent);
+    border-radius:50%;animation:spin .8s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .legend{display:flex;gap:20px;flex-wrap:wrap;margin-top:16px;font-size:13px;color:var(--ink-soft);}
+  .legend span{display:inline-flex;align-items:center;gap:7px;}
+  .legend i{width:12px;height:12px;border-radius:50%;display:inline-block;}
+  /* 无障碍节点列表:视觉隐藏但可键盘聚焦,聚焦时在舞台左下角显形 */
+  .net-a11y{position:absolute;inset:0;pointer-events:none;}
+  .net-a11y button{position:absolute;width:1px;height:1px;padding:0;margin:-1px;border:0;
+    overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+  .net-a11y button:focus{position:absolute;left:14px;bottom:14px;width:auto;height:auto;
+    margin:0;clip:auto;white-space:normal;padding:8px 14px;pointer-events:auto;z-index:8;
+    background:var(--paper);border:1px solid var(--accent);color:var(--ink);border-radius:5px;
+    font-family:inherit;font-size:13px;letter-spacing:.03em;box-shadow:0 8px 22px -10px var(--shadow);}
+
+  /* ============ 概念卡片 ============ */
+  .toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:18px;}
+  .search{flex:1;min-width:220px;position:relative;}
+  .search input{width:100%;padding:13px 38px 13px 42px;border:1px solid var(--line);
+    background:var(--paper);font-family:inherit;font-size:15px;border-radius:3px;color:var(--ink);}
+  .search input:focus{outline:none;border-color:var(--accent);}
+  .search>svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);opacity:.4;}
+  .search .clear{position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;
+    border:none;cursor:pointer;font-size:20px;color:var(--ink-soft);line-height:1;display:none;}
+  .search .clear:hover{color:var(--accent);}
+  .filters{display:flex;gap:8px;flex-wrap:wrap;}
+  .filters button{padding:9px 16px;border:1px solid var(--line);background:var(--paper);
+    cursor:pointer;font-family:inherit;font-size:13px;letter-spacing:.08em;border-radius:3px;
+    color:var(--ink-soft);transition:all .2s;}
+  .filters button:hover{border-color:var(--accent);color:var(--accent);}
+  .filters button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .count-hint{font-size:13px;color:var(--ink-soft);margin-bottom:16px;letter-spacing:.05em;}
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;}
+  @media(max-width:680px){.cards{grid-template-columns:1fr;}}
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:24px;
+    cursor:pointer;transition:transform .2s,box-shadow .2s,border-color .2s;position:relative;overflow:hidden;}
+  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--accent);}
+  .card:hover{transform:translateY(-4px);box-shadow:0 12px 28px -12px var(--shadow),0 0 28px -8px var(--glow);border-color:var(--accent-soft);}
+  .card:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  /* 概念卡片:虚线边框 + 半透明背景,与学者卡片区分 */
+  .card.concept{background:transparent;border-style:dashed;}
+  .card.concept::before{background:repeating-linear-gradient(var(--accent),var(--accent) 4px,transparent 4px,transparent 8px);}
+  .card.concept .c-scholar{color:var(--ink-soft);font-style:italic;}
+  .card .c-cat{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--accent);font-family:Georgia,serif;}
+  .card .c-term{font-size:22px;font-weight:700;margin:6px 0 2px;}
+  .card .c-orig{font-size:13px;font-style:italic;color:var(--ink-soft);font-family:Georgia,serif;margin-bottom:12px;}
+  .card .c-scholar{font-size:14px;color:var(--blue);margin-bottom:10px;}
+  .card .c-desc{font-size:14.5px;color:var(--ink-soft);
+    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+  mark{background:var(--hl);color:inherit;padding:0 1px;border-radius:2px;}
+
+  /* ============ 弹窗 ============ */
+  .modal-bg{position:fixed;inset:0;background:rgba(35,32,27,.55);z-index:100;
+    display:none;align-items:center;justify-content:center;padding:24px;backdrop-filter:blur(3px);}
+  .modal-bg.show{display:flex;animation:fade .3s;}
+  .modal{background:var(--paper);max-width:620px;width:100%;max-height:85vh;overflow-y:auto;
+    border-radius:8px;padding:40px;position:relative;box-shadow:0 30px 60px -20px rgba(0,0,0,.4);}
+  @media(max-width:680px){.modal{padding:28px 22px;}}
+  .modal .close{position:absolute;right:20px;top:18px;background:none;border:none;font-size:30px;
+    cursor:pointer;color:var(--ink-soft);line-height:1;}
+  .modal .close:hover{color:var(--accent);}
+  .modal .m-cat{font-size:12px;letter-spacing:.25em;text-transform:uppercase;color:var(--accent);font-family:Georgia,serif;}
+  .modal h2{font-size:30px;margin:8px 0 4px;}
+  .modal .m-orig{font-style:italic;color:var(--ink-soft);font-family:Georgia,serif;font-size:16px;}
+  .modal .m-meta{display:flex;gap:24px;flex-wrap:wrap;margin:18px 0;padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);}
+  .modal .m-meta div{font-size:14px;}
+  .modal .m-meta span{display:block;font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-soft);margin-bottom:3px;font-family:Georgia,serif;}
+  .modal .m-section{margin-top:20px;}
+  .modal .m-section h3{font-size:14px;letter-spacing:.1em;color:var(--accent);margin-bottom:8px;}
+  .modal .m-section p{font-size:15.5px;color:var(--ink);}
+  .modal .m-links{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;}
+  .modal .m-links button{font-size:13px;padding:6px 12px;border:1px solid var(--line);
+    background:none;border-radius:20px;cursor:pointer;font-family:inherit;color:var(--blue);transition:all .2s;}
+  .modal .m-links button:hover:not(:disabled){background:var(--blue);color:#fff;border-color:var(--blue);}
+  .modal .m-links button:disabled{opacity:.5;cursor:default;}
+
+  footer{border-top:1px solid var(--line);padding:30px 0 60px;color:var(--ink-soft);font-size:13px;text-align:center;}
+  footer code{background:var(--paper);padding:2px 8px;border-radius:3px;border:1px solid var(--line);}
+
+  /* 跳过链接(无障碍) */
+  .skip{position:absolute;left:-999px;top:0;background:var(--accent);color:#fff;padding:8px 16px;z-index:200;}
+  .skip:focus{left:0;}
+
+  /* ============ 打印样式 ============ */
+  @media print{
+    nav.tabs,.theme-toggle,.net-controls,.toolbar,.skip,.modal-bg,.tl-histo,.era-filter{display:none!important;}
+    body::before,body::after,header::before{display:none!important;}
+    body{background:#fff;color:#000;}
+    .view{display:block!important;padding:20px 0;page-break-before:always;}
+    #timeline{page-break-before:auto;}
+    .net-stage{height:auto;border:none;}
+    .card,.tl-item{break-inside:avoid;}
+    /* 打印时双侧时间线退回单侧线性 */
+    .timeline::before,.tl-axis{left:6px!important;transform:none!important;}
+    .tl-item,.tl-item.right,.tl-item.left{width:auto!important;margin:0 0 14px 28px!important;text-align:left!important;}
+    .tl-item.faded,.tl-era.faded{opacity:1!important;}
+    .tl-item .tl-dot{left:-26px!important;right:auto!important;}
+    .tl-item .tl-arm{display:none;}
+    .tl-era{text-align:left!important;}
+  }
+  @media(prefers-reduced-motion:reduce){
+    *{animation-duration:.001ms!important;transition-duration:.001ms!important;scroll-behavior:auto!important;}
+  }
+</style>
+</head>
+<body>
+<a href="#mainContent" class="skip">跳到主要内容</a>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Spatial Narrative Theory</div>
+    <h1>空间叙事理论脉络
+      <span class="sub">从空间形式到空间转向 · 一份可交互的理论地图</span>
+    </h1>
+    <p class="intro">这是一份梳理工具,把空间叙事相关的关键学者、著作与概念组织成三种视图:沿时间双向展开的<strong>发展脉络</strong>(可按时期筛选高亮)、相互影响的<strong>关系网络</strong>、可检索的<strong>概念卡片</strong>。点击任意条目可查看详情。内容可随时增删修改。</p>
+    <button class="theme-toggle" id="themeToggle" aria-label="切换深色/浅色主题" title="切换主题">☾</button>
+  </header>
+
+  <nav class="tabs" role="tablist" aria-label="视图切换">
+    <button class="active" data-view="timeline" role="tab" aria-selected="true">脉络<span class="en">Timeline</span></button>
+    <button data-view="network" role="tab" aria-selected="false">关系网络<span class="en">Network</span></button>
+    <button data-view="cards" role="tab" aria-selected="false">概念库<span class="en">Concepts</span></button>
+  </nav>
+
+  <main id="mainContent">
+  <!-- ========== 时间线视图 ========== -->
+  <section class="view active" id="timeline" role="tabpanel" tabindex="-1">
+    <div class="era-filter" id="eraFilter" role="group" aria-label="按时期筛选"></div>
+    <div class="tl-histo" id="tlHisto" aria-hidden="true"></div>
+    <div class="timeline" id="tlList"></div>
+  </section>
+
+  <!-- ========== 关系网络视图(3D) ========== -->
+  <section class="view" id="network" role="tabpanel" tabindex="-1">
+    <p class="net-hint">三维理论空间:<strong>竖直方向 = 时间</strong>(越往上越晚),<strong>水平面 = 关联结构</strong>(相互影响者相邻、同类聚拢)。拖动旋转、滚轮缩放、点击节点查看详情。试试下方的视角切换。</p>
+    <div class="net-stage">
+      <svg class="net" id="netSvg" viewBox="0 0 1000 640" role="img" aria-label="空间叙事理论三维关系网络"></svg>
+      <div class="net-a11y" id="netA11y" role="group" aria-label="网络节点列表(键盘可访问)"></div>
+      <div class="net-views" id="netViews">
+        <button data-cam="persp" class="active">立体视角</button>
+        <button data-cam="front">平视 · 看时间</button>
+        <button data-cam="top">俯视 · 看关联</button>
+      </div>
+      <div class="net-controls">
+        <button id="zoomIn" aria-label="放大">＋</button>
+        <button id="zoomOut" aria-label="缩小">－</button>
+        <button id="zoomReset" aria-label="复位视角">⟲</button>
+      </div>
+      <div class="net-loading" id="netLoading"><div class="spinner"></div><div>正在计算三维布局…</div></div>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--accent)"></i>哲学/理论奠基</span>
+      <span><i style="background:var(--blue)"></i>地理学·空间转向</span>
+      <span><i style="background:var(--green)"></i>叙事学</span>
+      <span><i style="background:var(--gold)"></i>文学批评</span>
+      <span style="opacity:.7">· 实心=学者(越大关联越多) · 空心=核心概念</span>
+    </div>
+  </section>
+
+  <!-- ========== 概念卡片视图 ========== -->
+  <section class="view" id="cards" role="tabpanel" tabindex="-1">
+    <div class="toolbar">
+      <div class="search">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="searchInput" placeholder="搜索概念、学者或关键词…" aria-label="搜索">
+        <button class="clear" id="searchClear" aria-label="清除搜索">×</button>
+      </div>
+      <div class="filters" id="filterBar"></div>
+    </div>
+    <div class="count-hint" id="countHint"></div>
+    <div class="cards" id="cardGrid"></div>
+  </section>
+  </main>
+
+  <footer>
+    空间叙事理论脉络 · 收录 20 位学者与 7 个核心概念,关键年份与著作信息已经核实<br>
+    内容可继续增删修改 · 本文件完全离线、自包含,可保存到电脑或手机用浏览器随时打开 · <code>index.html</code>
+  </footer>
+</div>
+
+<!-- 详情弹窗 -->
+<div class="modal-bg" id="modalBg" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal" id="modal" tabindex="-1"></div>
+</div>
+
+<script>
+"use strict";
+/* =======================================================================
+   空间叙事理论交互地图 —— 优化版
+   全部逻辑封装在 IIFE 内,避免污染全局命名空间。
+   ======================================================================= */
+(function(){
+
+/* =======================================================================
+   数据:学者 / 概念 / 关系  —— 修改 CATS / NODES / META 即可改内容
+   ======================================================================= */
+const CATS = {
+  found: {name:"哲学/理论奠基", color:"#9c3a2e"},
+  geo:   {name:"地理学·空间转向", color:"#3a5a6e"},
+  narr:  {name:"叙事学", color:"#52684e"},
+  lit:   {name:"文学批评", color:"#b08d3f"},
+};
+
+const NODES = [
+  {id:"frank", term:"空间形式", orig:"Spatial Form", scholar:"约瑟夫·弗兰克 Joseph Frank",
+   year:1945, cat:"lit", work:"《现代文学中的空间形式》",
+   desc:"提出现代主义文学(如乔伊斯、艾略特)打破线性时间叙述,要求读者把作品当作空间整体、并置地把握,被视为空间叙事研究的源头之一。",
+   detail:"弗兰克认为现代文学通过并置(juxtaposition)与反身参照(reflexive reference),让读者必须在整体的空间结构中、而非时间流程中理解文本。这一观点把『空间』第一次正式带入文学形式分析。",
+   links:["joyce_form","modern"]},
+
+  {id:"bachelard", term:"空间的诗学", orig:"La Poétique de l'espace", scholar:"加斯东·巴什拉 Gaston Bachelard",
+   year:1958, cat:"found", work:"《空间的诗学》",
+   desc:"以现象学方法考察家宅、阁楼、地窖、抽屉等亲密空间如何承载想象与记忆,确立了空间的情感与诗性维度。",
+   detail:"巴什拉关注『被体验的空间』(espace vécu)而非几何空间,提出『家宅』是人最初的世界、是庇护所与梦想的容器。对后来文学空间的『场所』『家园』研究影响深远。",
+   links:["topophilia","place"]},
+
+  {id:"bakhtin", term:"时空体", orig:"Chronotope", scholar:"米哈伊尔·巴赫金 Mikhail Bakhtin",
+   year:1975, cat:"narr", work:"《小说的时间形式与时空体形式》(写于1937–38,1975年首次出版)",
+   desc:"时间与空间在文学中不可分割地交织——『时空体』指文本中时间与空间关系的具体配置,如『道路』『城堡』『沙龙』等都是典型时空体。",
+   detail:"巴赫金借物理学的『时空』概念,指出在小说中时间『变厚、变实、可见』,空间则被时间和情节充满。不同体裁有其特定时空体(冒险小说的时空体、田园小说的时空体等),是连接叙事学与空间研究的关键桥梁。注意:此文虽写于1937–38年,却迟至1975年(巴赫金去世当年)才以俄文结集出版,1981年英译本《对话的想象》问世后方进入西方学界视野——因此其实际影响晚于弗兰克,本图按出版/影响年(1975)而非写作年排序。",
+   links:["frank","ryan_space","zoran"]},
+
+  {id:"foucault", term:"异托邦", orig:"Hétérotopie / Heterotopia", scholar:"米歇尔·福柯 Michel Foucault",
+   year:1967, cat:"found", work:"《不同空间》(Des espaces autres)",
+   desc:"提出我们身处一个『空间的时代』,并区分『乌托邦』(无实存之地)与『异托邦』——真实存在却又与众不同的空间,如墓地、监狱、船、镜子。",
+   detail:"福柯认为现代权力、知识与社会关系都铭刻在空间中。异托邦是『所有其他场所的对照、抵抗或翻转』,这一概念被广泛用于分析文学与文化中的异质空间。讲座1967年发表,文本1984年正式刊出。",
+   links:["lefebvre","soja","power_space"]},
+
+  {id:"lefebvre", term:"空间的生产", orig:"La Production de l'espace", scholar:"亨利·列斐伏尔 Henri Lefebvre",
+   year:1974, cat:"found", work:"《空间的生产》",
+   desc:"空间不是中性容器,而是社会生产的产物。提出空间三元辩证法:空间实践、空间的表征、表征的空间。",
+   detail:"列斐伏尔主张『(社会)空间是(社会)产物』,反对把空间当作既定的、空洞的背景。其三元论(感知的—构想的—生活的空间)成为空间转向最核心的理论资源,直接启发索亚与哈维。",
+   links:["foucault","soja","harvey","triad"]},
+
+  {id:"tuan", term:"恋地情结 / 空间与地方", orig:"Topophilia; Space and Place", scholar:"段义孚 Yi-Fu Tuan",
+   year:1977, cat:"geo", work:"《空间与地方:经验的视角》",
+   desc:"人文地理学代表。区分抽象的『空间』(space)与充满意义、情感与经验的『地方』(place),空间因被赋予价值而成为地方。",
+   detail:"段义孚提出『恋地情结』描述人对物质环境的情感联结。空间意味着自由与运动,地方意味着停顿与安全。这一space/place之辨是文学场所研究的基本框架。",
+   links:["bachelard","place","massey"]},
+
+  {id:"soja", term:"第三空间", orig:"Thirdspace", scholar:"爱德华·索亚 Edward Soja",
+   year:1996, cat:"geo", work:"《第三空间》《后现代地理学》",
+   desc:"发展列斐伏尔与福柯,提出超越『真实—想象』二元的『第三空间』,既真实又想象,是开放的、充满政治可能的空间。",
+   detail:"索亚把列斐伏尔的『生活空间』重新理论化为Thirdspace,并提出『空间转向』(spatial turn)一词的流行用法,主张社会理论长期偏重历史(时间)而压抑了空间维度,呼吁『重申空间』。",
+   links:["lefebvre","foucault","spatialturn","harvey"]},
+
+  {id:"harvey", term:"时空压缩", orig:"Time-Space Compression", scholar:"大卫·哈维 David Harvey",
+   year:1989, cat:"geo", work:"《后现代的状况》",
+   desc:"从马克思主义地理学出发,分析资本主义如何不断压缩时空体验,『用时间消灭空间』,改变现代人的空间感知。",
+   detail:"哈维认为后现代文化的破碎、瞬时与空间错置,根源于资本积累带来的时空压缩。把空间问题与政治经济学紧密结合,是空间转向的重要推动者。",
+   links:["lefebvre","soja","spatialturn"]},
+
+  {id:"jameson", term:"认知测绘", orig:"Cognitive Mapping", scholar:"弗雷德里克·詹姆逊 Fredric Jameson",
+   year:1991, cat:"lit", work:"《后现代主义,或晚期资本主义的文化逻辑》",
+   desc:"借城市规划者林奇的『心智地图』,提出主体需要『认知测绘』来在无法把握的全球资本空间中重新定位自身。",
+   detail:"詹姆逊以洛杉矶Bonaventure酒店为例,说明后现代空间使人迷失方向。认知测绘是一种政治美学任务:让个体重新表征自己在庞大社会总体中的位置。",
+   links:["harvey","soja","tally"]},
+
+  {id:"zoran", term:"叙事空间的结构层次", orig:"Theory of Space in Narrative", scholar:"加布里埃尔·佐伦 Gabriel Zoran",
+   year:1984, cat:"narr", work:"《走向叙事空间理论》",
+   desc:"系统区分叙事空间的三个层次:地志空间(整体世界)、时空体空间(运动与事件)、文本空间(语言呈现的顺序),是叙事学处理空间的经典模型。",
+   detail:"佐伦试图为『文本如何重构一个空间世界』提供形式化框架。他指出空间既由语言线性展开,又在读者心中被重组为立体世界,这一三层模型至今被广泛引用。",
+   links:["bakhtin","ryan_space","frank"]},
+
+  {id:"ryan_space", term:"叙事空间 / 可能世界", orig:"Narrative Space; Possible Worlds", scholar:"玛丽-劳尔·瑞安 Marie-Laure Ryan",
+   year:2001, cat:"narr", work:"《故事的变身》(Narrative as Virtual Reality, 2001)《叙事空间》",
+   desc:"当代叙事学代表。区分空间在叙事中的多种功能,并把『沉浸』(immersion)『可能世界』『地图』等引入数字叙事与空间叙事研究,是把空间叙事带入新媒体时代的关键人物。",
+   detail:"瑞安区分了故事空间(story space)、叙事框架、叙事世界等层次,并主张读者在叙事中体验到的『沉浸感』本质上是一种空间性的『身临其境』。她系统地把电子游戏、超文本、虚拟现实纳入叙事学视野,讨论『可玩的故事』(playable story)与『可叙述的游戏』之间的张力,直接连接了文学空间研究与新兴的游戏研究(game studies)。",
+   links:["zoran","bakhtin","tally","aarseth"]},
+
+  {id:"moretti", term:"文学地理学 / 远读", orig:"Literary Geography; Distant Reading", scholar:"佛朗哥·莫莱蒂 Franco Moretti",
+   year:1998, cat:"lit", work:"《欧洲小说地图集》",
+   desc:"主张把文学放到地图上研究——绘制小说中的空间分布,用地图揭示叙事与地理、历史的隐含关系。",
+   detail:"莫莱蒂区分『文学中的空间』与『空间中的文学』,用大量地图分析巴尔扎克、奥斯丁等的小说地理。后发展为『远读』,以量化与可视化方法研究文学,是数字人文与空间研究的交汇点。",
+   links:["jameson","tally"]},
+
+  {id:"tally", term:"文学制图 / 地理批评", orig:"Literary Cartography; Geocriticism", scholar:"罗伯特·塔利 Robert Tally",
+   year:2013, cat:"lit", work:"《空间性》(Spatiality)",
+   desc:"整合空间转向的诸多线索,提出作家是『文学制图师』,叙事本身就是为世界绘图的方式;推广源自法国的『地理批评』。",
+   detail:"塔利的《空间性》是英语世界系统梳理文学空间研究的入门导论,把弗兰克、巴赫金、列斐伏尔、福柯、索亚、詹姆逊等串成一条清晰脉络,并引介韦斯特法尔(Westphal)的地理批评。",
+   links:["jameson","moretti","ryan_space","soja","westphal"]},
+
+  {id:"longdiyong", term:"空间叙事学(中文语境)", orig:"", scholar:"龙迪勇",
+   year:2006, cat:"narr", work:"《叙事学研究的空间转向》(论文,2006);《空间叙事研究》(三联书店,2014)",
+   desc:"中国学界系统建构『空间叙事学』的代表性努力,讨论图像叙事、空间与记忆、叙事的空间形式等,推动相关研究在中文语境的展开。",
+   detail:"龙迪勇2002年起接触『空间叙事』问题,2006年在《叙事学研究的空间转向》一文中正式提出建构『空间叙事学』的理论设想,后历时约十二年完成55万字专著《空间叙事研究》(2014年三联书店出版,入选国家哲学社会科学成果文库)。他将西方空间理论与叙事学结合,关注『主题—并置叙事』『空间作为叙事建构方式』及图文跨媒介叙事,被视为中文空间叙事学的『拓荒者』。",
+   links:["frank","zoran","bakhtin","zhangshijun","chengxilin"]},
+
+  {id:"westphal", term:"地理批评", orig:"Géocritique / Geocriticism", scholar:"贝尔特朗·韦斯特法尔 Bertrand Westphal",
+   year:2007, cat:"lit", work:"《地理批评:真实、虚构、空间》(La Géocritique)",
+   desc:"『地理批评』(géocritique)的真正创立者。主张以『空间』(而非作者或单一文本)为中心,综合考察文学如何再现真实与虚构交织的地理空间。",
+   detail:"韦斯特法尔在法国利摩日大学发展出地理批评方法,2007年《La Géocritique》系统奠定其理论,提出多焦点(multifocalization)、多感官、地层式视野与互文性四要素,并以时空性、越界性、指涉性三大概念为基础。其著作2011年由罗伯特·塔利译为英文,塔利由此成为英语世界地理批评的主要推广者——常被误认的原创者其实是韦斯特法尔。",
+   links:["tally","soja","foucault"]},
+
+  {id:"massey", term:"关系性空间 / 权力几何学", orig:"Relational Space; Power Geometry", scholar:"多琳·梅西 Doreen Massey",
+   year:2005, cat:"geo", work:"《空间、地方与性别》(1994);《为了空间》(For Space, 2005)",
+   desc:"女性主义地理学代表。反对把『地方』理解为封闭、本真的认同,主张空间是同时性、多样性与开放性的维度,是诸多『故事并存』的产物。",
+   detail:"梅西提出『权力几何学』(power geometry):空间关系始终渗透着权力,不同群体在全球流动中被不平等地定位。她的『进步的地方感』(progressive sense of place)挑战段义孚式的情感归属,认为地方没有固定边界,而是全球社会关系在某一点的交汇。这一关系性、政治化的空间观为女性主义与后殖民空间研究提供了关键框架。",
+   links:["tuan","lefebvre","soja"]},
+
+  {id:"decerteau", term:"空间实践 / 行走的修辞", orig:"Spatial Practices; Walking in the City", scholar:"米歇尔·德塞图 Michel de Certeau",
+   year:1980, cat:"found", work:"《日常生活实践》(L'invention du quotidien, 1980;英译1984)",
+   desc:"区分『地点』(lieu,稳定的秩序配置)与『空间』(espace,被实践激活的地点),提出普通人通过『战术』在被规划的空间中开辟自己的用法。",
+   detail:"德塞图把『行走』比作一种言说行为——行人用脚步『书写』城市,如同说话者挪用语言系统。他区分自上而下的『策略』(strategy,权力者的空间规划)与自下而上的『战术』(tactic,弱者的临时挪用),为分析叙事中的空间实践、移动与抵抗提供了影响深远的工具,衔接福柯的空间权力与日常生活的微观层面。",
+   links:["foucault","lefebvre","power_space"]},
+
+  {id:"aarseth", term:"赛博文本 / 遍历文学", orig:"Cybertext; Ergodic Literature", scholar:"埃斯彭·阿尔塞特 Espen Aarseth",
+   year:1997, cat:"narr", work:"《赛博文本:遍历文学透视》(Cybertext)",
+   desc:"游戏研究奠基者之一。提出『遍历文学』(ergodic literature)——需读者付出非平凡的努力去『穿越』的文本,如超文本小说、电子游戏、MUD,把读者的物理操作纳入文本运作。",
+   detail:"阿尔塞特借物理学的『遍历』(ergodic,源自希腊语ergon『功』+hodos『路径』)一词,指出在赛博文本中读者必须做出选择与行动才能生成文本序列,『阅读』不再足以描述这一过程。他把焦点从作者—文本—读者三元转向文本机器内部的控制论互动,为电子游戏的空间叙事、互动叙事提供了根本性的理论入口,是连接叙事学与游戏研究的桥梁。",
+   links:["ryan_space","frank"]},
+
+  {id:"zhangshijun", term:"《红楼梦》的空间叙事(中文语境)", orig:"", scholar:"张世君",
+   year:1999, cat:"narr", work:"《〈红楼梦〉的空间叙事》(中国社会科学出版社,1999)",
+   desc:"国内最早以『空间叙事』命名的专著之一。以《红楼梦》为对象,从建筑图景、方位观念、庭院与园林场景、门窗墙的空间分割等切入,把空间叙事落实到具体文本分析。",
+   detail:"张世君(暨南大学)1999年出版《〈红楼梦〉的空间叙事》,同年发表《论叙事文本的空间结构——以〈红楼梦〉和〈巴黎圣母院〉为例》。她从中国古典小说与中西建筑空间观切入,讨论方位、庭院叙事视点、园林场景、门窗墙的空间分割等如何承担叙事功能,是中文学界把『空间叙事』付诸具体文本分析的先行者,时间上早于龙迪勇对『空间叙事学』的系统建构。",
+   links:["frank","zoran","longdiyong"]},
+
+  {id:"chengxilin", term:"叙事理论的空间转向(中文引介)", orig:"", scholar:"程锡麟",
+   year:2007, cat:"narr", work:"《叙事理论的空间转向——叙事空间理论概述》(《江西社会科学》2007年第11期)",
+   desc:"系统向中文学界引介西方叙事空间理论,以弗兰克为起点,梳理佐伦的叙事空间层次、瑞安等当代叙事学者的空间概念,推动『空间转向』在国内叙事学界的传播。",
+   detail:"程锡麟(四川大学)在该文中追溯叙事理论空间转向的学术背景:以弗兰克《现代文学中的空间形式》为开端,概述佐伦的地志/时空体/文本三层空间模型、瑞安的叙事空间与可能世界等,是国内较早系统综述西方叙事空间理论的论文之一。它与龙迪勇的建构性努力相呼应,共同推动了空间叙事研究在中文语境的展开。",
+   links:["frank","zoran","ryan_space","longdiyong"]},
+];
+
+/* 派生概念节点(用于网络图的概念锚点)。加上 desc 后,点击概念节点也能看到释义。 */
+const META = {
+  spatialturn:{term:"空间转向", cat:"geo",
+    desc:"指20世纪后期人文社会科学从『偏重时间/历史』转向『重视空间』的思潮。索亚、哈维等认为社会理论长期把空间当作静止背景而推崇时间叙事,空间转向主张空间同样是社会与权力的建构物。"},
+  triad:{term:"空间三元论", cat:"found",
+    desc:"列斐伏尔提出的核心模型:空间实践(感知的空间)、空间的表征(构想的空间,如规划图)、表征的空间(生活的、被体验与想象的空间)三者辩证统一。索亚的『第三空间』即由此发展而来。"},
+  place:{term:"地方", cat:"geo",
+    desc:"与抽象的『空间』(space)相对——『地方』(place)是被赋予意义、情感与经验的具体所在。段义孚强调地方代表停顿与安全,梅西则反对把地方理解为封闭本真的认同。"},
+  topophilia:{term:"恋地情结", cat:"geo",
+    desc:"段义孚提出的概念,指人对物质环境、特定场所所产生的情感联结与依恋,是人文地理学考察空间情感维度的关键词。"},
+  power_space:{term:"权力与空间", cat:"found",
+    desc:"福柯、列斐伏尔、德塞图共同关注的命题:空间不是中性容器,而是权力运作、规训与抵抗的场域。监狱、医院、城市规划等都把社会权力关系铭刻在空间布置中。"},
+  modern:{term:"现代主义", cat:"lit",
+    desc:"20世纪初的文学艺术运动,以打破线性叙述、强调并置与碎片化为特征。弗兰克的『空间形式』正是用来描述乔伊斯、艾略特等现代主义作品的非时间性结构。"},
+  joyce_form:{term:"并置 / 共时", cat:"lit",
+    desc:"弗兰克空间形式理论的核心手法:作品不按时间先后线性推进,而要求读者把分散的片段在脑中并置、共时地把握为一个空间整体,如《尤利西斯》。"},
+};
+
+/* =======================================================================
+   工具函数
+   ======================================================================= */
+const $ = id => document.getElementById(id);
+const catColor = c => (CATS[c] ? CATS[c].color : "var(--ink-soft)");
+const nodeById = id => NODES.find(n => n.id === id);
+const labelFor = id => { const n = nodeById(id); if(n) return n.term; if(META[id]) return META[id].term; return id; };
+function esc(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function debounce(fn, ms){ let t; return function(){ const a=arguments; clearTimeout(t); t=setTimeout(()=>fn.apply(null,a), ms); }; }
+function highlightText(text, kw){
+  const safe = esc(text);
+  if(!kw) return safe;
+  const re = new RegExp('('+kw.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+')','ig');
+  return safe.replace(re, '<mark>$1</mark>');
+}
+
+/* =======================================================================
+   主题切换(深色/浅色)
+   ======================================================================= */
+const themeToggle = $('themeToggle');
+let darkMode = !!(window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+function applyTheme(){
+  document.documentElement.setAttribute('data-theme', darkMode ? 'dark' : 'light');
+  themeToggle.textContent = darkMode ? '☀' : '☾';
+}
+themeToggle.onclick = ()=>{ darkMode = !darkMode; applyTheme(); };
+applyTheme();
+
+/* =======================================================================
+   渲染:时间线(双侧交替) + 时期筛选 + 年份直方图
+   ======================================================================= */
+const sorted = [...NODES].sort((a,b)=>a.year-b.year);
+
+/* 时代分期:from=该期起始年(含),to=结束年(用于筛选高亮与色带)。
+   color 用 CSS 变量,labelYears 为显示用年份范围。 */
+const ERAS = [
+  {id:"e1", from:1940, to:1957, label:"文学的空间形式",            en:"Spatial Form",           years:"1945",       color:"var(--gold)"},
+  {id:"e2", from:1958, to:1984, label:"哲学奠基与日常实践",        en:"Foundations & Practice", years:"1958–1984",  color:"var(--accent)"},
+  {id:"e3", from:1985, to:1996, label:"空间转向",                  en:"The Spatial Turn",       years:"1989–1996",  color:"var(--blue)"},
+  {id:"e4", from:1997, to:9999, label:"当代 · 学科化与数字/游戏空间", en:"Contemporary & Digital", years:"1997–",      color:"var(--green)"},
+];
+function eraOf(year){
+  let cur = ERAS[0];
+  for(const e of ERAS){ if(year >= e.from) cur = e; }
+  return cur;
+}
+let activeEra = null; // 当前选中的时期 id(null=全部)
+
+/* —— 直方图:每根柱按其十年所属时期着色 —— */
+(function renderHisto(){
+  const histo = $('tlHisto');
+  const minY = Math.floor(sorted[0].year/10)*10;
+  const maxY = Math.ceil(sorted[sorted.length-1].year/10)*10;
+  const buckets = {};
+  for(let y=minY; y<=maxY; y+=10) buckets[y]=0;
+  NODES.forEach(n=>{ const b=Math.floor(n.year/10)*10; buckets[b]=(buckets[b]||0)+1; });
+  const max = Math.max(...Object.values(buckets), 1);
+  Object.keys(buckets).sort((a,b)=>a-b).forEach(decade=>{
+    const count = buckets[decade];
+    const era = eraOf(+decade+5); // 用十年中点判定时期
+    const bar=document.createElement('div');
+    bar.className='bar';
+    bar.dataset.era = era.id;
+    bar.style.height = Math.max(count/max*100, count?8:2)+'%';
+    bar.style.background = era.color;
+    if(!count) bar.style.opacity='.15';
+    bar.innerHTML = `<span>${decade}s · ${count}</span>`;
+    histo.appendChild(bar);
+  });
+})();
+
+/* —— 时期筛选按钮 —— */
+const eraFilter = $('eraFilter');
+(function renderEraFilter(){
+  // "全部"按钮
+  const all = document.createElement('button');
+  all.dataset.era = 'all';
+  all.style.setProperty('--ef-color', 'var(--ink-soft)');
+  all.classList.add('active');
+  all.innerHTML = `<span class="ef-label">全部时期</span><span class="ef-years">1945 – 至今</span>`;
+  eraFilter.appendChild(all);
+  ERAS.forEach(e=>{
+    const b = document.createElement('button');
+    b.dataset.era = e.id;
+    b.style.setProperty('--ef-color', e.color);
+    b.style.borderLeftColor = e.color;
+    b.innerHTML = `<span class="ef-label">${esc(e.label)}</span><span class="ef-years">${esc(e.years)}</span>`;
+    eraFilter.appendChild(b);
+  });
+  eraFilter.querySelectorAll('button').forEach(b=>{
+    b.onclick = ()=>selectEra(b.dataset.era==='all'?null:b.dataset.era);
+  });
+})();
+
+/* —— 双侧交替渲染时间线 —— */
+const tlList = $('tlList');
+let lastEra = null, sideIdx = 0;
+sorted.forEach(n=>{
+  const era = eraOf(n.year);
+  if(era !== lastEra){
+    const band = document.createElement('div');
+    band.className = 'tl-era';
+    band.dataset.era = era.id;
+    band.style.setProperty('--era-color', era.color);
+    band.innerHTML = `<div class="tl-era-inner"><span class="tl-era-label">${esc(era.label)}</span><span class="tl-era-en">${esc(era.en)}</span></div>`;
+    tlList.appendChild(band);
+    lastEra = era;
+  }
+  const side = (sideIdx++ % 2 === 0) ? 'right' : 'left';
+  const div = document.createElement('div');
+  div.className = 'tl-item '+side;
+  div.dataset.era = era.id;
+  div.tabIndex = 0;
+  div.setAttribute('role','button');
+  div.setAttribute('aria-label', n.year+' '+n.term+' · '+n.scholar);
+  div.style.setProperty('--era-color', era.color);
+  div.innerHTML = `
+    <span class="tl-arm"></span>
+    <span class="tl-dot"></span>
+    <div class="tl-card">
+      <div class="tl-year">${n.year}</div>
+      <div class="tl-scholar">${esc(n.scholar)}</div>
+      <div class="tl-title">${esc(n.term)}${n.orig?`<span class="orig">${esc(n.orig)}</span>`:''}</div>
+      <div class="tl-concept">${esc(n.desc)}</div>
+      <span class="tl-tag" style="background:${catColor(n.cat)}22;color:${catColor(n.cat)}">${CATS[n.cat].name}</span>
+    </div>`;
+  const open = ()=>openModal(n.id);
+  div.onclick = open;
+  div.onkeydown = e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(); } };
+  tlList.appendChild(div);
+});
+
+/* —— 中轴分段色带:按时期在中轴上叠加彩色段 —— */
+function buildAxisBands(){
+  // 移除旧的
+  tlList.querySelectorAll('.tl-axis').forEach(el=>el.remove());
+  const listRect = tlList.getBoundingClientRect();
+  const eraEls = {};
+  ERAS.forEach(e=>{ eraEls[e.id] = []; });
+  // 收集每个时期占据的垂直范围(从该时期标题到下一时期标题前)
+  const children = [...tlList.children];
+  let curEra = null, segStart = null, segs = [];
+  children.forEach(ch=>{
+    const eid = ch.dataset.era;
+    if(ch.classList.contains('tl-era')){
+      if(curEra!==null) segs.push({era:curEra, start:segStart, endEl:ch});
+      curEra = eid; segStart = ch;
+    }
+  });
+  if(curEra!==null) segs.push({era:curEra, start:segStart, endEl:null});
+  segs.forEach(s=>{
+    const startTop = s.start.offsetTop;
+    const endTop = s.endEl ? s.endEl.offsetTop : tlList.scrollHeight;
+    const band = document.createElement('div');
+    band.className = 'tl-axis';
+    band.dataset.era = s.era;
+    band.style.top = startTop+'px';
+    band.style.height = (endTop-startTop)+'px';
+    const era = ERAS.find(e=>e.id===s.era);
+    band.style.background = era?era.color:'var(--line)';
+    band.style.opacity = activeEra ? (activeEra===s.era?'1':'.15') : '.55';
+    tlList.appendChild(band);
+  });
+}
+
+/* —— 时期筛选:高亮选中时期,虚化其余 —— */
+function selectEra(eraId){
+  activeEra = eraId;
+  // 按钮态
+  eraFilter.querySelectorAll('button').forEach(b=>{
+    const bid = b.dataset.era==='all'?null:b.dataset.era;
+    b.classList.toggle('active', bid===eraId);
+    b.classList.toggle('dimmed', eraId!==null && bid!==eraId && b.dataset.era!=='all');
+  });
+  // 条目与时期标题
+  tlList.querySelectorAll('.tl-item').forEach(el=>{
+    el.classList.toggle('faded', eraId!==null && el.dataset.era!==eraId);
+  });
+  tlList.querySelectorAll('.tl-era').forEach(el=>{
+    el.classList.toggle('faded', eraId!==null && el.dataset.era!==eraId);
+  });
+  // 直方图
+  $('tlHisto').querySelectorAll('.bar').forEach(b=>{
+    b.style.opacity = eraId ? (b.dataset.era===eraId?'1':'.18') : (b.style.height==='2%'?'.15':'.5');
+  });
+  // 中轴色带
+  tlList.querySelectorAll('.tl-axis').forEach(b=>{
+    b.style.opacity = eraId ? (b.dataset.era===eraId?'1':'.15') : '.55';
+  });
+  // 选中某时期时,平滑滚动到该时期标题
+  if(eraId){
+    const target = tlList.querySelector(`.tl-era[data-era="${eraId}"]`);
+    if(target && target.scrollIntoView) target.scrollIntoView({behavior:'smooth', block:'center'});
+  }
+  syncURL();
+}
+
+// 首次构建中轴色带(需等布局完成);切到时间线视图或窗口变化时重建
+requestAnimationFrame(()=>requestAnimationFrame(buildAxisBands));
+window.addEventListener('resize', debounce(buildAxisBands, 200));
+
+/* =======================================================================
+   渲染:概念卡片 + 搜索(防抖) + 筛选
+   ======================================================================= */
+const grid = $('cardGrid');
+const filterBar = $('filterBar');
+const countHint = $('countHint');
+const searchInput = $('searchInput');
+const searchClear = $('searchClear');
+let activeCat = 'all';
+let keyword = '';
+
+const allBtn = document.createElement('button');
+allBtn.textContent='全部'; allBtn.className='active'; allBtn.dataset.cat='all';
+filterBar.appendChild(allBtn);
+Object.entries(CATS).forEach(([k,v])=>{
+  const b=document.createElement('button'); b.textContent=v.name; b.dataset.cat=k;
+  filterBar.appendChild(b);
+});
+filterBar.querySelectorAll('button').forEach(b=>{
+  b.onclick=()=>{
+    filterBar.querySelectorAll('button').forEach(x=>x.classList.remove('active'));
+    b.classList.add('active'); activeCat=b.dataset.cat; renderCards(); syncURL();
+  };
+});
+
+const onSearch = debounce(()=>{ renderCards(); syncURL(); }, 220);
+searchInput.addEventListener('input', e=>{
+  keyword = e.target.value.trim().toLowerCase();
+  searchClear.style.display = keyword ? 'block' : 'none';
+  onSearch();
+});
+searchClear.onclick = ()=>{
+  keyword=''; searchInput.value=''; searchClear.style.display='none';
+  renderCards(); syncURL(); searchInput.focus();
+};
+
+/* 概念锚点也作为卡片项纳入(用 isConcept 标记,样式区分于学者卡片)。
+   统计哪些学者引用了该概念,作为概念卡片的副标题。 */
+const CONCEPT_CARDS = Object.entries(META)
+  .filter(([k,m]) => m.desc)
+  .map(([k,m]) => {
+    const refs = NODES.filter(x => (x.links||[]).includes(k)).map(x => x.scholar.split(' ')[0]);
+    return { id:k, term:m.term, orig:'', cat:m.cat, desc:m.desc,
+             scholar: refs.length? ('关联:'+refs.join('、')) : '核心概念',
+             work:'', isConcept:true };
+  });
+const ALL_CARDS = [...NODES.map(n=>({...n, isConcept:false})), ...CONCEPT_CARDS];
+
+function renderCards(){
+  grid.innerHTML='';
+  const matched = ALL_CARDS.filter(n=>{
+    const catOk = activeCat==='all'||n.cat===activeCat;
+    const txt = (n.term+(n.orig||'')+n.scholar+n.desc+(n.work||'')).toLowerCase();
+    const kwOk = !keyword || txt.includes(keyword);
+    return catOk && kwOk;
+  });
+  matched.forEach(n=>{
+    const c=document.createElement('div');
+    c.className = n.isConcept ? 'card concept' : 'card';
+    c.tabIndex = 0;
+    c.setAttribute('role','button');
+    c.setAttribute('aria-label', n.term+' · '+n.scholar);
+    c.style.setProperty('--accent',catColor(n.cat));
+    c.innerHTML=`
+      <div class="c-cat" style="color:${catColor(n.cat)}">${n.isConcept?'概念 · ':''}${CATS[n.cat].name}</div>
+      <div class="c-term">${highlightText(n.term, keyword)}</div>
+      ${n.orig?`<div class="c-orig">${highlightText(n.orig, keyword)}</div>`:'<div class="c-orig">&nbsp;</div>'}
+      <div class="c-scholar">${highlightText(n.scholar, keyword)}</div>
+      <div class="c-desc">${highlightText(n.desc, keyword)}</div>`;
+    const open=()=>openModal(n.id);
+    c.onclick=open;
+    c.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(); } };
+    grid.appendChild(c);
+  });
+  const scholarN = matched.filter(m=>!m.isConcept).length;
+  const conceptN = matched.length - scholarN;
+  countHint.textContent = `共 ${matched.length} 项(${scholarN} 位学者 + ${conceptN} 个概念)` +
+    (activeCat!=='all'?` · ${CATS[activeCat].name}`:'') + (keyword?` · 关键词「${keyword}」`:'');
+  if(!matched.length) grid.innerHTML='<p style="color:var(--ink-soft)">没有匹配的条目。</p>';
+}
+renderCards();
+
+/* =======================================================================
+   渲染:弹窗详情(含焦点管理 + 深链接)
+   ======================================================================= */
+const modalBg = $('modalBg');
+const modal = $('modal');
+let lastFocused = null;
+let openItemId = null;
+
+function openModal(id){
+  const n = nodeById(id);
+  const m = META[id];
+  // 既不是正式学者条目、也不是带释义的概念锚点 → 不弹窗
+  if(!n && !(m && m.desc)) return;
+  if(!modalBg.classList.contains('show')) lastFocused = document.activeElement;
+  openItemId = id;
+
+  if(n){
+    // —— 正式学者条目 ——
+    const linkBtns = (n.links||[]).map(l=>{
+      const exists = nodeById(l) || (META[l] && META[l].desc);
+      return `<button ${exists?`data-goto="${l}"`:'disabled'}>${esc(labelFor(l))}</button>`;
+    }).join('');
+    modal.innerHTML = `
+      <button class="close" aria-label="关闭" data-close>×</button>
+      <div class="m-cat" style="color:${catColor(n.cat)}">${CATS[n.cat].name}</div>
+      <h2 id="modalTitle">${esc(n.term)}</h2>
+      ${n.orig?`<div class="m-orig">${esc(n.orig)}</div>`:''}
+      <div class="m-meta">
+        <div><span>学者</span>${esc(n.scholar)}</div>
+        <div><span>年份</span>${n.year}</div>
+        <div><span>代表作</span>${esc(n.work)}</div>
+      </div>
+      <div class="m-section"><h3>核心观点</h3><p>${esc(n.desc)}</p></div>
+      <div class="m-section"><h3>展开</h3><p>${esc(n.detail)}</p></div>
+      ${linkBtns?`<div class="m-section"><h3>相关概念</h3><div class="m-links">${linkBtns}</div></div>`:''}
+    `;
+  } else {
+    // —— 概念锚点(只有释义) ——
+    // 找出哪些学者条目链接到这个概念,作为"相关学者"
+    const relatedScholars = NODES.filter(x => (x.links||[]).includes(id));
+    const linkBtns = relatedScholars.map(x =>
+      `<button data-goto="${x.id}">${esc(x.term)}</button>`).join('');
+    modal.innerHTML = `
+      <button class="close" aria-label="关闭" data-close>×</button>
+      <div class="m-cat" style="color:${catColor(m.cat)}">概念 · ${CATS[m.cat].name}</div>
+      <h2 id="modalTitle">${esc(m.term)}</h2>
+      <div class="m-section"><h3>释义</h3><p>${esc(m.desc)}</p></div>
+      ${linkBtns?`<div class="m-section"><h3>相关学者</h3><div class="m-links">${linkBtns}</div></div>`:''}
+    `;
+  }
+  modal.querySelector('[data-close]').onclick = closeModal;
+  modal.querySelectorAll('[data-goto]').forEach(b=>{ b.onclick = ()=>openModal(b.dataset.goto); });
+  modalBg.classList.add('show');
+  modal.focus();
+  syncURL();
+}
+function closeModal(){
+  modalBg.classList.remove('show');
+  openItemId = null;
+  if(lastFocused && typeof lastFocused.focus==='function') lastFocused.focus();
+  syncURL();
+}
+modalBg.onclick = e=>{ if(e.target===modalBg) closeModal(); };
+document.addEventListener('keydown', e=>{
+  if(!modalBg.classList.contains('show')) return;
+  if(e.key==='Escape'){ closeModal(); return; }
+  // 焦点陷阱:弹窗打开时,Tab 仅在弹窗内的可聚焦元素间循环
+  if(e.key==='Tab'){
+    const focusables = modal.querySelectorAll(
+      'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+    );
+    if(!focusables.length) return;
+    const first = focusables[0], last = focusables[focusables.length-1];
+    // 焦点不在弹窗内(例如刚打开时落在 .modal 容器自身)时,先拉回首个元素
+    if(!modal.contains(document.activeElement)){
+      e.preventDefault(); first.focus(); return;
+    }
+    if(e.shiftKey && document.activeElement===first){
+      e.preventDefault(); last.focus();
+    } else if(!e.shiftKey && document.activeElement===last){
+      e.preventDefault(); first.focus();
+    }
+  }
+});
+
+/* =======================================================================
+   深链接:URL hash 记住 视图 / 筛选 / 搜索 / 打开的条目
+   形如 #view=cards&cat=geo&q=空间&item=soja
+   注:在沙箱 iframe(about:srcdoc / 跨域)中浏览器禁止操作 History API,
+   此时静默降级 —— 功能仍正常,只是状态不写入 URL。把文件保存到本地
+   用浏览器直接打开时,深链接会完整生效。
+   ======================================================================= */
+let suppressURL = false;
+let urlEnabled = true;   // 是否允许写 URL,首次失败后关闭以避免反复抛错
+
+function syncURL(){
+  if(suppressURL || !urlEnabled) return;
+  let str = '';
+  try{
+    const p = new URLSearchParams();
+    if(currentView!=='timeline') p.set('view', currentView);
+    if(activeEra) p.set('era', activeEra);
+    if(activeCat!=='all') p.set('cat', activeCat);
+    if(keyword) p.set('q', keyword);
+    if(openItemId) p.set('item', openItemId);
+    str = p.toString();
+    history.replaceState(null, '', str ? '#'+str : location.pathname+location.search);
+  }catch(e){
+    // SecurityError 等:当前环境不允许修改 URL,退而求其次仅改 hash;
+    // 若连 hash 也不行,则永久关闭 URL 同步。
+    try{ location.hash = str; }
+    catch(_){ urlEnabled = false; }
+  }
+}
+
+function readURL(){
+  let h = '';
+  try{ h = (location.hash || '').replace(/^#/,''); }catch(e){ return; }
+  if(!h) return;
+  const p = new URLSearchParams(h);
+  suppressURL = true;
+  const v = p.get('view');
+  if(v && document.getElementById(v)) switchView(v);
+  const cat = p.get('cat');
+  if(cat && (cat==='all'||CATS[cat])){
+    activeCat = cat;
+    filterBar.querySelectorAll('button').forEach(x=>x.classList.toggle('active', x.dataset.cat===cat));
+  }
+  const q = p.get('q');
+  if(q){ keyword=q.toLowerCase(); searchInput.value=q; searchClear.style.display='block'; }
+  renderCards();
+  suppressURL = false;
+  const eraId = p.get('era');
+  if(eraId && ERAS.some(e=>e.id===eraId)){
+    // 等布局完成后再应用时期高亮
+    requestAnimationFrame(()=>requestAnimationFrame(()=>selectEra(eraId)));
+  }
+  const item = p.get('item');
+  if(item && (nodeById(item) || (META[item] && META[item].desc))) openModal(item);
+}
+
+/* =======================================================================
+   视图切换
+   ======================================================================= */
+let currentView = 'timeline';
+const tabBtns = document.querySelectorAll('nav.tabs button');
+function switchView(view){
+  currentView = view;
+  tabBtns.forEach(x=>{
+    const on = x.dataset.view===view;
+    x.classList.toggle('active', on);
+    x.setAttribute('aria-selected', on?'true':'false');
+  });
+  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active', v.id===view));
+  if(view==='network') ensureNetwork();
+  if(view==='timeline') requestAnimationFrame(()=>requestAnimationFrame(buildAxisBands));
+}
+tabBtns.forEach(b=>{ b.onclick=()=>{ switchView(b.dataset.view); syncURL(); }; });
+/* ARIA tabs:左右/上下方向键在标签间移动,Home/End 跳首尾 */
+document.querySelector('nav.tabs').addEventListener('keydown', e=>{
+  const btns = [...tabBtns];
+  const idx = btns.indexOf(document.activeElement);
+  if(idx < 0) return;
+  let ni = null;
+  if(e.key==='ArrowRight' || e.key==='ArrowDown') ni = (idx+1) % btns.length;
+  else if(e.key==='ArrowLeft' || e.key==='ArrowUp') ni = (idx-1+btns.length) % btns.length;
+  else if(e.key==='Home') ni = 0;
+  else if(e.key==='End') ni = btns.length-1;
+  if(ni===null) return;
+  e.preventDefault();
+  btns[ni].focus();
+  switchView(btns[ni].dataset.view);
+  syncURL();
+});
+
+/* =======================================================================
+   关系网络(3D):纯手写 3D→2D 投影,无外部库
+   轴语义: Y=时间(越上越晚) ; X/Z 水平面=关联结构(力导向)
+   交互: 拖动旋转、滚轮缩放、视角预设(立体/平视/俯视)、点击查看详情
+   ======================================================================= */
+const svg = $('netSvg');
+const netLoading = $('netLoading');
+const W=1000, H=640;
+let netBuilt = false;
+let netNodes = [], nmap = {}, links = [];
+let activeNode = null;
+
+// 相机:yaw=绕Y偏航, pitch=绕X俯仰, zoom=缩放, dist=透视距离
+let cam = { yaw: -0.6, pitch: -0.42, zoom: 1, dist: 2200 };
+const SPAN = 760;   // 布局立方体边长(世界坐标范围 ±SPAN/2)
+
+function buildGraphData(){
+  const ids = new Set();
+  NODES.forEach(n=>{ ids.add(n.id); (n.links||[]).forEach(l=>ids.add(l)); });
+  // 时间轴范围(用于把 year 映射到 y3)
+  const years = NODES.map(n=>n.year);
+  const minY = Math.min(...years), maxY = Math.max(...years);
+  // 水平面按分类预设方位角,让同类初始就分区
+  const catList = Object.keys(CATS);
+  const catAng = {};
+  catList.forEach((c,i)=>{ catAng[c] = (i/catList.length)*Math.PI*2; });
+
+  netNodes = [...ids].map(id=>{
+    const real = nodeById(id);
+    const cat = real?real.cat:(META[id]?META[id].cat:'found');
+    const yr = real ? real.year : (function(){
+      // 概念锚点没有年份:取引用它的学者的平均年份
+      const refs = NODES.filter(x=>(x.links||[]).includes(id));
+      return refs.length ? Math.round(refs.reduce((a,b)=>a+b.year,0)/refs.length) : (minY+maxY)/2;
+    })();
+    // y3: 时间映射到竖直轴, 早→下(负), 晚→上(正);乘0.84留出上下边距
+    const ty = (yr-minY)/(maxY-minY||1);            // 0..1
+    const y3 = (ty-0.5)*SPAN*0.84;
+    // x3/z3: 按分类角度散布在水平圆盘上,后续力导向再调整
+    const ang = catAng[cat] + (Math.random()-.5)*1.1;
+    const rad = SPAN*0.30 + (Math.random()-.5)*SPAN*0.12;
+    return { id, label:labelFor(id), cat, real:!!real, year:yr,
+      x3: Math.cos(ang)*rad, y3, z3: Math.sin(ang)*rad,
+      vx:0, vz:0, fixed:false, deg:0 };
+  });
+  nmap = Object.fromEntries(netNodes.map(n=>[n.id,n]));
+  links = [];
+  NODES.forEach(n=>(n.links||[]).forEach(l=>{ if(nmap[l]) links.push({s:n.id, t:l}); }));
+  netNodes.forEach(n=>{ n.deg = 0; });
+  links.forEach(l=>{ if(nmap[l.s]) nmap[l.s].deg++; if(nmap[l.t]) nmap[l.t].deg++; });
+}
+
+// 力导向只作用于水平面(x3,z3),y3(时间)保持固定 —— 这样时间轴语义不被破坏
+function stepSim(iter){
+  const half = SPAN*0.62;
+  for(let s=0;s<iter;s++){
+    for(let i=0;i<netNodes.length;i++){
+      for(let j=i+1;j<netNodes.length;j++){
+        const a=netNodes[i], b=netNodes[j];
+        let dx=a.x3-b.x3, dz=a.z3-b.z3;
+        let d=Math.sqrt(dx*dx+dz*dz)||1;
+        const f=9000/(d*d);
+        dx/=d; dz/=d;
+        a.vx+=dx*f; a.vz+=dz*f; b.vx-=dx*f; b.vz-=dz*f;
+      }
+    }
+    links.forEach(l=>{
+      const a=nmap[l.s], b=nmap[l.t];
+      let dx=b.x3-a.x3, dz=b.z3-a.z3;
+      let d=Math.sqrt(dx*dx+dz*dz)||1;
+      const f=(d-150)*0.013;
+      dx/=d; dz/=d;
+      a.vx+=dx*f; a.vz+=dz*f; b.vx-=dx*f; b.vz-=dz*f;
+    });
+    netNodes.forEach(n=>{
+      if(n.fixed) return;
+      n.vx+=(-n.x3)*0.001; n.vz+=(-n.z3)*0.001;   // 微弱向心
+      n.x3+=n.vx*0.85; n.z3+=n.vz*0.85; n.vx*=0.85; n.vz*=0.85;
+      n.x3=Math.max(-half,Math.min(half,n.x3));
+      n.z3=Math.max(-half,Math.min(half,n.z3));
+    });
+  }
+}
+
+// 3D 旋转 + 透视投影 → 屏幕坐标 {sx,sy,scale,depth}
+function project(p){
+  const cy=Math.cos(cam.yaw), sy=Math.sin(cam.yaw);
+  const cp=Math.cos(cam.pitch), sp=Math.sin(cam.pitch);
+  // 绕 Y 轴(偏航)
+  let x = p.x3*cy - p.z3*sy;
+  let z = p.x3*sy + p.z3*cy;
+  let y = p.y3;
+  // 绕 X 轴(俯仰)
+  let y2 = y*cp - z*sp;
+  let z2 = y*sp + z*cp;
+  // 透视:depth 越大越近
+  const persp = cam.dist / (cam.dist + z2);
+  const scale = persp * cam.zoom;
+  return { sx: W/2 + x*scale, sy: H/2 - y2*scale, scale, depth: -z2 };
+}
+
+function ensureNetwork(){
+  if(netBuilt) return;
+  netBuilt = true;
+  buildGraphData();
+  let done = 0;
+  const total = 600, batch = 60;
+  function tick(){
+    stepSim(batch);
+    done += batch;
+    if(done < total){ requestAnimationFrame(tick); }
+    else { netLoading.style.display='none'; render3D(); buildA11yList(); }
+  }
+  requestAnimationFrame(tick);
+}
+
+/* —— 无障碍:为每个节点生成一个可键盘聚焦的按钮(按年份排序便于线性浏览)。
+   聚焦时显形于舞台左下角,回车/点击则高亮该节点并打开详情。仅构建一次。 —— */
+function buildA11yList(){
+  const box = $('netA11y');
+  if(!box || box.dataset.built) return;
+  box.dataset.built = '1';
+  const ordered = [...netNodes].sort((a,b)=>a.year-b.year);
+  ordered.forEach(n=>{
+    const catName = (CATS[n.cat] && CATS[n.cat].name) || '';
+    const meta = n.real ? `学者 · ${catName} · ${n.year}` : `概念 · ${catName}`;
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = `${n.label}(${meta})`;
+    b.onclick = ()=>{
+      activeNode = n.id; render3D();
+      if(n.real || (META[n.id] && META[n.id].desc)) openModal(n.id);
+    };
+    box.appendChild(b);
+  });
+}
+
+/* —— 渲染:按深度排序,远的先画;节点随景深缩放/淡化 —— */
+const NS='http://www.w3.org/2000/svg';
+function render3D(){
+  if(!netBuilt) return;
+  svg.innerHTML='';
+  // 1) 坐标轴(时间轴 + 水平面网格)
+  const gAxis=document.createElementNS(NS,'g');
+  drawAxis(gAxis);
+  svg.appendChild(gAxis);
+
+  // 2) 投影所有节点
+  netNodes.forEach(n=>{ const pr=project(n); n._sx=pr.sx; n._sy=pr.sy; n._sc=pr.scale; n._depth=pr.depth; });
+
+  // 3) 连线(画在节点下层,按两端平均深度排序)
+  const gEdges=document.createElementNS(NS,'g');
+  const related = activeNode ? relatedSet(activeNode) : null;
+  links.forEach(l=>{
+    const a=nmap[l.s], b=nmap[l.t];
+    const line=document.createElementNS(NS,'line');
+    line.setAttribute('x1',a._sx); line.setAttribute('y1',a._sy);
+    line.setAttribute('x2',b._sx); line.setAttribute('y2',b._sy);
+    const hot = activeNode && (l.s===activeNode||l.t===activeNode);
+    line.setAttribute('class','edge'+(hot?' hot':'')+(activeNode&&!hot?' dim':''));
+    line.setAttribute('stroke-width', (hot?2.4:1.3));
+    gEdges.appendChild(line);
+  });
+  svg.appendChild(gEdges);
+
+  // 4) 节点(按深度从远到近排序绘制,保证近的盖住远的)
+  const gNodes=document.createElementNS(NS,'g');
+  const order=[...netNodes].sort((a,b)=>a._depth-b._depth);
+  order.forEach(n=>{
+    const g=document.createElementNS(NS,'g');
+    g.setAttribute('class','node'+(activeNode&&!(related&&related.has(n.id))?' dim':''));
+    g.dataset.id=n.id;
+    const baseR = n.real ? Math.min(26,16+(n.deg||0)*1.5) : 11;
+    const r = Math.max(3, baseR*n._sc);
+    const col=(CATS[n.cat]&&CATS[n.cat].color)||'#9c3a2e';
+    const c=document.createElementNS(NS,'circle');
+    c.setAttribute('cx',n._sx); c.setAttribute('cy',n._sy); c.setAttribute('r',r);
+    c.setAttribute('fill', n.real?col:'var(--paper)');
+    c.setAttribute('stroke',col);
+    c.setAttribute('stroke-width', n.real?0:Math.max(1,2*n._sc));
+    // 景深:近处不透明,远处半透明
+    const fog = Math.max(.35, Math.min(1, 0.55 + n._sc*0.5));
+    c.style.opacity = fog;
+    g.appendChild(c);
+    // 标签:只给较近/较大的节点显示,避免远处文字糊成一团
+    if(n._sc>0.62 || n.real){
+      const t=document.createElementNS(NS,'text');
+      t.setAttribute('x',n._sx); t.setAttribute('y',n._sy+r+12*n._sc+4);
+      t.setAttribute('text-anchor','middle');
+      t.setAttribute('font-size', Math.max(9, (n.real?12.5:11)*n._sc));
+      t.setAttribute('fill', n.real?'var(--ink)':'var(--ink-soft)');
+      t.style.opacity = fog;
+      t.textContent=n.label;
+      g.appendChild(t);
+    }
+    gNodes.appendChild(g);
+  });
+  svg.appendChild(gNodes);
+  bindNodeEvents(gNodes);
+}
+
+/* —— 渲染节流:把一帧内的多次渲染请求合并为一次,用于拖动/滚轮等高频路径 —— */
+let renderQueued=false;
+function scheduleRender(){
+  if(renderQueued) return;
+  renderQueued=true;
+  requestAnimationFrame(()=>{ renderQueued=false; render3D(); });
+}
+
+function relatedSet(id){
+  const s=new Set([id]);
+  links.forEach(l=>{ if(l.s===id)s.add(l.t); if(l.t===id)s.add(l.s); });
+  return s;
+}
+
+/* —— 坐标轴:竖直时间轴 + 年份刻度 + 水平面参考网格 —— */
+function drawAxis(g){
+  // 竖直时间轴(world: x3=z3=0, y3 从 -SPAN/2 到 +SPAN/2)
+  const years = NODES.map(n=>n.year);
+  const minY=Math.min(...years), maxY=Math.max(...years);
+  const top=project({x3:0,y3:SPAN*0.5+40,z3:0});
+  const bot=project({x3:0,y3:-SPAN*0.5-40,z3:0});
+  const axis=document.createElementNS(NS,'line');
+  axis.setAttribute('x1',bot.sx);axis.setAttribute('y1',bot.sy);
+  axis.setAttribute('x2',top.sx);axis.setAttribute('y2',top.sy);
+  axis.setAttribute('class','axis-line');
+  g.appendChild(axis);
+  // 轴标题
+  const lbl=document.createElementNS(NS,'text');
+  lbl.setAttribute('x',top.sx+8);lbl.setAttribute('y',top.sy);
+  lbl.setAttribute('class','axis-label');lbl.textContent='时间 →';
+  g.appendChild(lbl);
+  // 年份刻度(每20年)
+  for(let y=Math.ceil(minY/20)*20; y<=maxY; y+=20){
+    const ty=(y-minY)/(maxY-minY||1);
+    const p=project({x3:0,y3:(ty-0.5)*SPAN*0.84,z3:0});
+    const tick=document.createElementNS(NS,'text');
+    tick.setAttribute('x',p.sx-10);tick.setAttribute('y',p.sy+3);
+    tick.setAttribute('text-anchor','end');
+    tick.setAttribute('class','axis-tick');tick.textContent=y;
+    g.appendChild(tick);
+  }
+  // 水平面参考网格(在 y3=-SPAN/2 的底面画一个十字)
+  const gy=-SPAN*0.5;
+  [[-1,0,1,0],[0,-1,0,1]].forEach(([x1,z1,x2,z2])=>{
+    const a=project({x3:x1*SPAN*0.5,y3:gy,z3:z1*SPAN*0.5});
+    const b=project({x3:x2*SPAN*0.5,y3:gy,z3:z2*SPAN*0.5});
+    const ln=document.createElementNS(NS,'line');
+    ln.setAttribute('x1',a.sx);ln.setAttribute('y1',a.sy);
+    ln.setAttribute('x2',b.sx);ln.setAttribute('y2',b.sy);
+    ln.setAttribute('class','grid-line');
+    g.appendChild(ln);
+  });
+  // 水平面标注
+  const plane=project({x3:SPAN*0.5,y3:gy,z3:0});
+  const pl=document.createElementNS(NS,'text');
+  pl.setAttribute('x',plane.sx+6);pl.setAttribute('y',plane.sy);
+  pl.setAttribute('class','axis-label');pl.textContent='关联面';
+  g.appendChild(pl);
+}
+
+/* —— 高亮(点击节点) —— */
+function setHighlight(id){ activeNode=id; render3D(); }
+function clearHighlight(){ activeNode=null; render3D(); }
+
+/* —— 节点事件:悬停高亮、点击查看详情 —— */
+function bindNodeEvents(gNodes){
+  gNodes.querySelectorAll('.node').forEach(g=>{
+    const n=nmap[g.dataset.id];
+    g.style.cursor=(n.real || (META[n.id] && META[n.id].desc))?'pointer':'default';
+    g.addEventListener('click',e=>{
+      e.stopPropagation();
+      if(dragRotating) return;          // 旋转时不触发点击
+      if(activeNode===n.id){ activeNode=null; render3D(); }
+      else { activeNode=n.id; render3D(); }
+      if(n.real || (META[n.id] && META[n.id].desc)) openModal(n.id);
+    });
+  });
+}
+
+/* —— 拖动旋转 —— */
+let dragRotating=false, rotStart=null, movedR=false;
+svg.addEventListener('pointerdown',e=>{
+  // 点在节点上则交给节点点击;点在空白处则旋转
+  if(e.target.closest && e.target.closest('.node')) return;
+  dragRotating=true; movedR=false;
+  rotStart={x:e.clientX, y:e.clientY, yaw:cam.yaw, pitch:cam.pitch};
+  try{ svg.setPointerCapture(e.pointerId); }catch(_){}
+});
+svg.addEventListener('pointermove',e=>{
+  if(!dragRotating||!rotStart) return;
+  const dx=e.clientX-rotStart.x, dy=e.clientY-rotStart.y;
+  if(Math.abs(dx)+Math.abs(dy)>3) movedR=true;
+  cam.yaw = rotStart.yaw + dx*0.008;
+  cam.pitch = Math.max(-Math.PI/2+0.05, Math.min(Math.PI/2-0.05, rotStart.pitch + dy*0.008));
+  setCamButtonsInactive();
+  scheduleRender();
+});
+svg.addEventListener('pointerup',()=>{ dragRotating=false; rotStart=null; });
+svg.addEventListener('click',e=>{
+  // 点空白处取消高亮
+  if(!(e.target.closest&&e.target.closest('.node')) && !movedR){ activeNode=null; render3D(); }
+});
+
+/* —— 滚轮缩放 —— */
+svg.addEventListener('wheel',e=>{
+  e.preventDefault();
+  cam.zoom = Math.max(0.45, Math.min(3.2, cam.zoom*(e.deltaY<0?1.12:0.89)));
+  scheduleRender();
+},{passive:false});
+
+/* —— 视角预设 + 缩放按钮 —— */
+const netViews=$('netViews');
+function setCamButtonsInactive(){ netViews.querySelectorAll('button').forEach(b=>b.classList.remove('active')); }
+const CAM_PRESETS = {
+  persp: { yaw:-0.6,  pitch:-0.42, zoom:1   },   // 立体
+  front: { yaw:0,     pitch:-0.08, zoom:0.82},   // 平视:正看时间轴(微俯角更自然)
+  top:   { yaw:0,     pitch:-Math.PI/2+0.06, zoom:0.92 }, // 俯视:看水平面关联
+};
+function applyCam(name, animate){
+  const p=CAM_PRESETS[name]; if(!p) return;
+  netViews.querySelectorAll('button').forEach(b=>b.classList.toggle('active', b.dataset.cam===name));
+  if(!animate){ cam.yaw=p.yaw; cam.pitch=p.pitch; cam.zoom=p.zoom; render3D(); return; }
+  const sy=cam.yaw, spi=cam.pitch, sz=cam.zoom, steps=22; let i=0;
+  (function anim(){
+    i++; const t=i/steps, e=1-Math.pow(1-t,3);
+    cam.yaw=sy+(p.yaw-sy)*e; cam.pitch=spi+(p.pitch-spi)*e; cam.zoom=sz+(p.zoom-sz)*e;
+    render3D();
+    if(i<steps) requestAnimationFrame(anim);
+  })();
+}
+netViews.querySelectorAll('button').forEach(b=>{
+  b.onclick=()=>applyCam(b.dataset.cam, true);
+});
+$('zoomIn').onclick=()=>{ cam.zoom=Math.min(3.2,cam.zoom*1.18); render3D(); };
+$('zoomOut').onclick=()=>{ cam.zoom=Math.max(0.45,cam.zoom/1.18); render3D(); };
+$('zoomReset').onclick=()=>{ applyCam('persp', true); };
+
+/* =======================================================================
+   启动
+   ======================================================================= */
+readURL();
+if(currentView==='network') ensureNetwork();
+
+})();
+</script>
+</body>
+</html>
